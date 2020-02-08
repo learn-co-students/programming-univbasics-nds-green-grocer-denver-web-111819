@@ -1,36 +1,54 @@
 def find_item_by_name_in_collection(name, collection)
-  # Implement me first!
-  #
-  # Consult README for inputs and outputs
+  collection.each{|x| x[:item] == name ? (return x) : nil} 
+  nil
 end
 
 def consolidate_cart(cart)
-  # Consult README for inputs and outputs
-  #
-  # REMEMBER: This returns a new Array that represents the cart. Don't merely
-  # change `cart` (i.e. mutate) it. It's easier to return a new thing.
-end
-
+  var = []
+  new_arr = []
+  var = cart.each{|items_array| items_array[:count] ? items_array[:count] += 1: items_array[:count] = 1}
+  var.uniq
+end 
+   
 def apply_coupons(cart, coupons)
-  # Consult README for inputs and outputs
-  #
-  # REMEMBER: This method **should** update cart
+  if coupons == []
+    return cart
+  end
+  coupons.each do |x|
+    item = x[:item]
+    cart.each_with_index do |y, index|
+      if item == y[:item] && y[:count] >= x[:num]
+        pushHash = {:item => "#{item} W/COUPON", :price => x[:cost] / x[:num], :clearance => y[:clearance], :count => x[:num]}
+        cart.push(pushHash)
+        y[:count] -= x[:num]
+      end
+    end
+  end
+  cart
 end
 
 def apply_clearance(cart)
-  # Consult README for inputs and outputs
-  #
-  # REMEMBER: This method **should** update cart
+  cart.each do |x|
+    if x[:clearance] == true
+      x[:price] = x[:price] * 4 / 5
+    end
+  end
+  cart
 end
 
 def checkout(cart, coupons)
-  # Consult README for inputs and outputs
-  #
-  # This method should call
-  # * consolidate_cart
-  # * apply_coupons
-  # * apply_clearance
-  #
-  # BEFORE it begins the work of calculating the total (or else you might have
-  # some irritated customers
+  return_float = 0.0
+  if cart.any?{|x| x[:count]}
+    consolidated_cart = cart
+  else
+    consolidated_cart = consolidate_cart(cart)
+  end
+  coupons_applied = apply_coupons(consolidated_cart, coupons)
+  clearance_applied = apply_clearance(coupons_applied)
+  clearance_applied.each{|x| return_float += x[:price] * x[:count]}
+  if return_float > 100
+    return_float = return_float * 9/10
+  end
+  return_float
 end
+
